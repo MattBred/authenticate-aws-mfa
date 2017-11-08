@@ -49,8 +49,6 @@ function get_aws_auth() {
 }
 
 function get_aws_auth_data() {
-  set -e
-  set -o pipefail
   echo "$2" | jq --raw-output ".Credentials.${1}"
 }
 
@@ -63,7 +61,8 @@ if ! test -z "$AWS_AUTH"; then
 fi
 
 # Remove existing [default] block.
+# shellcheck disable=SC2016
 sed -n -i '1h;1!H;${g;s/\n\{0,\}\[default\]\n\(AWS_[[:alnum:][:punct:]]\{1,\}\n\?\)\{1,3\}//;p;}' ~/.aws/credentials
 
 # Save new [default] block with mfa tokens.
-printf "\n\n[default]\nAWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}\nAWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}\nAWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}" >> ~/.aws/credentials
+printf "\n\n[default]\nAWS_ACCESS_KEY_ID=%s\nAWS_SECRET_ACCESS_KEY=%s\nAWS_SESSION_TOKEN=%s" "${AWS_ACCESS_KEY_ID}" "${AWS_SECRET_ACCESS_KEY}" "${AWS_SESSION_TOKEN}" >> ~/.aws/credentials
